@@ -5,7 +5,6 @@ Wat dit start:
 - Mosquitto (MQTT broker) op poort 1883
 - Node-RED op poort 1880
 - InfluxDB op poort 8086
-- Grafana op poort 3000
 - Portainer op poort 9000
 
 Snelstart:
@@ -31,7 +30,7 @@ Snelstart:
    - Grafana: http://localhost:3000
    - Portainer: http://localhost:9000
 
-7. In Node-RED: voeg twee "mqtt in" nodes toe met topics sensors/joystick en sensors/buttons, verbind beide met "debug" nodes en klik "Deploy".
+7. In Node-RED: voeg twee "mqtt in" nodes toe met topics gateway/joystick en gateway/buttons, verbind beide met "debug" nodes en klik "Deploy".
 
 8. Als alles werkt: je ziet in Node-RED Debug en in de mqtt-sub terminal de binnenkomende berichten.
 =======
