@@ -1,0 +1,153 @@
+[
+    {
+        "id": "529524939b71aeee",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "c18a57d7abca588f",
+        "type": "mqtt-broker",
+        "name": "test",
+        "broker": "mosquitto",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "8bb916565ab9f73b",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "telemetry",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "80bcd7abf2592f50",
+        "type": "mqtt in",
+        "z": "529524939b71aeee",
+        "name": "",
+        "topic": "gateway/buttons",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "c18a57d7abca588f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 340,
+        "wires": [
+            [
+                "7e658d8c8fae635e"
+            ]
+        ]
+    },
+    {
+        "id": "9db8c9c497fb33de",
+        "type": "debug",
+        "z": "529524939b71aeee",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "7e658d8c8fae635e",
+        "type": "function",
+        "z": "529524939b71aeee",
+        "name": "function 1",
+        "func": "// Function node: parse/validate -> build Influx payload\n// Verwacht: msg.payload is een object { x:..., y:..., ts:... } of { btn1:..., btn2:... }\n\nvar p = msg.payload;\n\n// Als payload een JSON-string is, parse hem\nif (typeof p === \"string\") {\n    try {\n        p = JSON.parse(p);\n    } catch (e) {\n        node.warn(\"payload is not valid json\");\n        return null;\n    }\n}\n\n// Voor joystick topic\nif (msg.topic && msg.topic.indexOf(\"joystick\") !== -1) {\n    if (typeof p.x !== \"number\" || typeof p.y !== \"number\") {\n        node.warn(\"invalid joystick values\");\n        return null;\n    }\n    msg.measurement = \"joystick\";         // meetnaam voor Influx\n    msg.payload = {                       // velden die Influx opslaat\n        x: p.x,\n        y: p.y\n    };\n    // optioneel tags:\n    msg.tags = { device: \"controller\" };\n    return msg;\n}\n\n// Voor buttons topic\nif (msg.topic && msg.topic.indexOf(\"buttons\") !== -1) {\n    msg.measurement = \"buttons\";\n    msg.payload = {\n        btn1: Number(p.btn1 || 0),\n        btn2: Number(p.btn2 || 0)\n    };\n    msg.tags = { device: \"controller\" };\n    return msg;\n}\n\nnode.warn(\"unknown topic: \" + msg.topic);\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 280,
+        "wires": [
+            [
+                "9db8c9c497fb33de",
+                "ce43a84353a2c984"
+            ]
+        ]
+    },
+    {
+        "id": "4c8ba039931b72f4",
+        "type": "mqtt in",
+        "z": "529524939b71aeee",
+        "name": "",
+        "topic": "gateway/joystick",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "c18a57d7abca588f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 260,
+        "wires": [
+            [
+                "7e658d8c8fae635e"
+            ]
+        ]
+    },
+    {
+        "id": "ce43a84353a2c984",
+        "type": "influxdb out",
+        "z": "529524939b71aeee",
+        "influxdb": "8bb916565ab9f73b",
+        "name": "mqtt",
+        "measurement": "joystick",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "myorg",
+        "bucket": "mybucket",
+        "x": 670,
+        "y": 200,
+        "wires": []
+    }
+]
