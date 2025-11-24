@@ -5,7 +5,6 @@ Variabele voor het Docker Compose bestand
 COMPOSE_FILE = docker-compose.yml
 
 De 'deploy' target roept achtereenvolgens 'build', 'down' en 'up' aan.
-Dit simuleert de automatische update: nieuwe code -> nieuwe image -> nieuwe stack.
 deploy: build down up
 
 Stap 1: Bouwen van de containers. --no-cache is cruciaal voor nieuwe code.
