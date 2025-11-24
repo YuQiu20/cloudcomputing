@@ -1,0 +1,199 @@
+[
+    {
+        "id": "1",
+        "type": "tab",
+        "label": "MQTT -> InfluxDB gateway",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "mqtt-broker-config",
+        "type": "mqtt-broker",
+        "name": "mosquitto",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "influxdb-config",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": "8086",
+        "protocol": "http",
+        "database": "mybucket",
+        "name": "influxdb",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://localhost:8086",
+        "timeout": "",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "e444b6613ee5bb58",
+        "type": "mqtt-broker",
+        "name": "test1",
+        "broker": "mosquitto",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "mqtt-in-joystick",
+        "type": "mqtt in",
+        "z": "1",
+        "name": "gateway/joystick",
+        "topic": "gateway/joystick",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "mqtt-broker-config",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 160,
+        "y": 100,
+        "wires": [
+            [
+                "fn-parse"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt-in-buttons",
+        "type": "mqtt in",
+        "z": "1",
+        "name": "gateway/buttons",
+        "topic": "gateway/buttons",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "mqtt-broker-config",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 160,
+        "y": 160,
+        "wires": [
+            [
+                "fn-parse"
+            ]
+        ]
+    },
+    {
+        "id": "fn-parse",
+        "type": "function",
+        "z": "1",
+        "name": "parse+validate -> influx payload",
+        "func": "// parse payload (string or object)\nlet payload = msg.payload;\nif (typeof payload === 'string') {\n    try {\n        payload = JSON.parse(payload);\n    } catch (e) {\n        node.warn('Invalid JSON payload: ' + e);\n        return null;\n    }\n}\nconst topic = (msg.topic || '').toLowerCase();\nconst deviceTag = 'gateway';\nconst nowSec = Math.floor(Date.now()/1000);\nconst ts = (payload && payload.time) ? Number(payload.time) : nowSec;\n\n// joystick\nif (topic.endsWith('joystick')) {\n    const x = Number(payload.x);\n    const y = Number(payload.y);\n    if (Number.isNaN(x) || Number.isNaN(y) || x < -1 || x > 1 || y < -1 || y > 1) {\n        node.warn('Invalid joystick values: ' + JSON.stringify(payload));\n        return null;\n    }\n    msg.payload = {\n        measurement: 'telemetry',\n        tags: { device: deviceTag, type: 'joystick' },\n        fields: { joystick_x: x, joystick_y: y },\n        timestamp: ts * 1e9\n    };\n    return msg;\n}\n\n// buttons\nif (topic.endsWith('buttons')) {\n    // single button\n    if (payload.button !== undefined && payload.state !== undefined) {\n        const button = String(payload.button).replace(/\\s+/g,'_');\n        const state = (typeof payload.state === 'boolean') ? (payload.state ? 1 : 0) : Number(payload.state);\n        if (Number.isNaN(state)) { node.warn('Invalid button state'); return null; }\n        const fieldKey = 'button_' + button;\n        msg.payload = {\n            measurement: 'telemetry',\n            tags: { device: deviceTag, type: 'buttons' },\n            fields: { [fieldKey]: state },\n            timestamp: ts * 1e9\n        };\n        return msg;\n    }\n    // multi-button\n    if (payload.buttons && typeof payload.buttons === 'object') {\n        const fields = {};\n        Object.keys(payload.buttons).forEach(k => {\n            const val = Number(payload.buttons[k]);\n            if (!Number.isNaN(val)) fields['button_' + String(k).replace(/\\s+/g,'_')] = val;\n        });\n        if (Object.keys(fields).length === 0) return null;\n        msg.payload = {\n            measurement: 'telemetry',\n            tags: { device: deviceTag, type: 'buttons' },\n            fields: fields,\n            timestamp: ts * 1e9\n        };\n        return msg;\n    }\n    node.warn('Unrecognized buttons payload: ' + JSON.stringify(payload));\n    return null;\n}\n\nnode.warn('Unknown topic: ' + topic);\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 140,
+        "wires": [
+            [
+                "debug-out",
+                "influx-out"
+            ]
+        ]
+    },
+    {
+        "id": "debug-out",
+        "type": "debug",
+        "z": "1",
+        "name": "debug (msg)",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 770,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "influx-out",
+        "type": "influxdb out",
+        "z": "1",
+        "influxdb": "influxdb-config",
+        "name": "InfluxDB write",
+        "measurement": "",
+        "precision": "n",
+        "retentionPolicy": "",
+        "database": "mybucket",
+        "precisionV18FluxV20": "ns",
+        "retentionPolicyV18Flux": "",
+        "org": "myorg",
+        "bucket": "mybucket",
+        "x": 780,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ddbdaf8821aff539",
+        "type": "mqtt in",
+        "z": "1",
+        "name": "",
+        "topic": "gateway/joystick",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "e444b6613ee5bb58",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 240,
+        "wires": [
+            [
+                "fn-parse"
+            ]
+        ]
+    }
+]

@@ -1,0 +1,7 @@
+﻿.env
+mosquitto/data/
+mosquitto/log/
+influxdb/
+grafana/
+nodered/data/
+portainer_data/
