@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿# Simpel MQTT startpakket - snelstart
 
 Wat dit start:
@@ -33,3 +34,6 @@ Snelstart:
 7. In Node-RED: voeg twee "mqtt in" nodes toe met topics sensors/joystick en sensors/buttons, verbind beide met "debug" nodes en klik "Deploy".
 
 8. Als alles werkt: je ziet in Node-RED Debug en in de mqtt-sub terminal de binnenkomende berichten.
+=======
+# cloudcomputing
+>>>>>>> 6096465872133e78e1277b69b3315aca3cf28f32
