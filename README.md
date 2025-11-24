@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-﻿# Simpel MQTT startpakket - snelstart
+Simpel MQTT startpakket - snelstart
 
 Wat dit start:
 - Mosquitto (MQTT broker) op poort 1883
