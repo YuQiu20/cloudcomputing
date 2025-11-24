@@ -19,14 +19,14 @@ Snelstart:
 4. Installeer Python MQTT client (éénmalig):
    python -m pip install --user paho-mqtt
 
-5. Start de publishers (in aparte PowerShell vensters):
-   python .\scripts\publish_joystick.py
-   python .\scripts\publish_buttons.py
+5. Start jouw publishers in aparte PowerShell vensters.
+   Voer daarna onderstaande opdrachten uit.
+   - python .\scripts\publish_joystick.py
+   - python .\scripts\publish_buttons.py
 
 6. Open in browser:
    - Node-RED: http://localhost:1880
    - InfluxDB: http://localhost:8086
-   - Grafana: http://localhost:3000
    - Portainer: http://localhost:9000
 
 7. In Node-RED: voeg twee "mqtt in" nodes toe met topics gateway/joystick en gateway/buttons, verbind beide met "debug" nodes en klik "Deploy".
