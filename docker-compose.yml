@@ -49,7 +49,7 @@ services:
       - DOCKER_INFLUXDB_INIT_PASSWORD=influxpass
       - DOCKER_INFLUXDB_INIT_ORG=my-org
       - DOCKER_INFLUXDB_INIT_BUCKET=my-bucket
-      - DOCKER_INFLUX_TOKEN=my-influx-token
+      - DOCKER_INFLUX_TOKEN=vKDAPDkmdYTCVANK7FVs3sVeB3aWQVZrHJh-dNdf5qLTClBjU-inpARsXuPKxJX4MBi1V7_76GJSSLCYO0r_ZQ==
 
 
   portainer:

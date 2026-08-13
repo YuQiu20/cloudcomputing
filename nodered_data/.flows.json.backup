@@ -8,19 +8,6 @@
         "env": []
     },
     {
-        "id": "influxdbconfig1",
-        "type": "influxdb",
-        "hostname": "influxdb",
-        "port": "8086",
-        "protocol": "http",
-        "database": "my-bucket",
-        "name": "Influx Docker",
-        "usetls": false,
-        "tls": "",
-        "influxdbVersion": "2.0",
-        "url": "http://influxdb:8086"
-    },
-    {
         "id": "mqtt_broker",
         "type": "mqtt-broker",
         "name": "Mosquitto",
@@ -86,7 +73,7 @@
         "id": "func-check-x",
         "type": "function",
         "z": "6ab7ac831dd8712b",
-        "name": "check als waarde klopt",
+        "name": "check waarde",
         "func": "msg.payload = { value: Number(msg.payload) };\nreturn msg;",
         "outputs": 1,
         "timeout": "",
@@ -94,7 +81,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 350,
+        "x": 330,
         "y": 220,
         "wires": [
             [
@@ -143,7 +130,7 @@
         "id": "func-check-y",
         "type": "function",
         "z": "6ab7ac831dd8712b",
-        "name": "check als waarde klopt",
+        "name": "check waarde",
         "func": "msg.payload = { value: Number(msg.payload) };\nreturn msg;",
         "outputs": 1,
         "timeout": "",
@@ -151,30 +138,13 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 350,
+        "x": 330,
         "y": 280,
         "wires": [
             [
-                "influx-out-y-check"
+                "2bdb2b44cb40cfb7"
             ]
         ]
-    },
-    {
-        "id": "influx-out-y-check",
-        "type": "influxdb out",
-        "z": "6ab7ac831dd8712b",
-        "influxdb": "influxdbconfig",
-        "name": "influxDB dashboard",
-        "measurement": "joyst_Y",
-        "precision": "",
-        "retentionPolicy": "",
-        "database": "",
-        "retentionPolicyV18Flux": "",
-        "org": "my-org",
-        "bucket": "cloud",
-        "x": 590,
-        "y": 280,
-        "wires": []
     },
     {
         "id": "mqtt-button",
@@ -232,5 +202,22 @@
                 "influx-out-button"
             ]
         ]
+    },
+    {
+        "id": "2bdb2b44cb40cfb7",
+        "type": "influxdb out",
+        "z": "6ab7ac831dd8712b",
+        "influxdb": "influxdbconfig",
+        "name": "influxDB dashboard",
+        "measurement": "joyst_Y",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "",
+        "retentionPolicyV18Flux": "",
+        "org": "my-org",
+        "bucket": "cloud",
+        "x": 590,
+        "y": 280,
+        "wires": []
     }
 ]

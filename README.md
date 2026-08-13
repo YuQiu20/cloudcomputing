@@ -1,37 +1,69 @@
-Simpel MQTT startpakket - snelstart
+Cloud Computing - MQTT Startpakket
 
-Wat dit start:
-- Mosquitto (MQTT broker) op poort 1883
-- Node-RED op poort 1880
-- InfluxDB op poort 8086
-- Portainer op poort 9000
+Met dit startpakket zet je snel een complete IoT-omgeving op. Dit pakket start de volgende Docker-containers:
 
-Snelstart:
-1. Kopieer .env.example naar .env als je variabelen wilt gebruiken:
+*   **Mosquitto (MQTT Broker)** - Poort `1883`
+*   **Node-RED** - Poort `1880`
+*   **InfluxDB** - Poort `8086`
+*   **Portainer** - Poort `9000`
+
+---
+
+Voorbereiding & Opstarten
+
+1. **Maak de omgevingsvariabelen aan (optioneel)**  
+   Kopieer het voorbeeldbestand als je variabelen wilt gebruiken:
+   ```bash
    copy .env.example .env
+   ```
 
-2. Start de stack:
+2. **Start de Docker-stack**  
+   Bouw en start de containers op de achtergrond:
+   ```bash
    docker compose up -d
+   ```
 
-3. Controleer containers:
+3. **Controleer je containers**  
+   Check of alle containers succesvol draaien:
+   ```bash
    docker compose ps
+   ```
 
-4. Installeer Python MQTT client (éénmalig):
+---
+
+Python Publishers Starten
+
+Om testdata naar je database te sturen, gebruiken we twee Python-scripts.
+
+4. **Installeer de MQTT-bibliotheek (éénmalig)**  
+   ```bash
    python -m pip install --user paho-mqtt
+   ```
 
-5. Start jouw publishers in aparte PowerShell vensters.
-   Voer daarna onderstaande opdrachten uit.
-   - python .\scripts\publish_joystick.py
-   - python .\scripts\publish_buttons.py
+5. **Start de datastromen**  
+   Open **twee aparte PowerShell vensters** en voer in elk venster één van onderstaande commando's uit:
+   * Venster 1: `python .\scripts\publish_joystick.py`
+   * Venster 2: `python .\scripts\publish_buttons.py`
 
-6. Open in browser:
-   - Node-RED: http://localhost:1880
-   - InfluxDB: http://localhost:8086
-   - Portainer: http://localhost:9000
+---
 
-7. In Node-RED: voeg twee "mqtt in" nodes toe met topics gateway/joystick en gateway/buttons, verbind beide met "debug" nodes en klik "Deploy".
+Webinterfaces
 
-8. Als alles werkt: je ziet in Node-RED Debug en in de mqtt-sub terminal de binnenkomende berichten.
-=======
-# cloudcomputing
->>>>>>> 6096465872133e78e1277b69b3315aca3cf28f32
+Zodra alles draait, zijn je diensten bereikbaar via de browser:
+
+*   **Node-RED:** http://localhost:1880
+*   **InfluxDB:** http://localhost:8086
+*   **Portainer:** http://localhost:9000
+
+---
+
+Testen in Node-RED
+
+Controleer of de data goed binnenkomt:
+
+1. Open **Node-RED** in je browser.
+2. Sleep twee **"mqtt in"** nodes naar je werkveld.
+3. Configureer de nodes en luister naar de topics: `gateway/joystick` en `gateway/buttons`.
+4. Sleep een **"debug"** node naar het veld en verbind deze met beide mqtt-nodes.
+5. Klik rechtsboven op de rode knop **Deploy**.
+6. Open het debug-paneel (rechter zijbalk). Als alles correct werkt, zie je hier nu continu de live MQTT-berichten binnenkomen!
